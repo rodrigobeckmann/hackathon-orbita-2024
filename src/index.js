@@ -1,8 +1,19 @@
 const express = require("express");
 const axios = require("axios");
 const csvtojson = require("csvtojson");
+const cors = require("cors");
 
 const app = express();
+
+// Configuração do CORS com opções específicas
+const corsOptions = {
+  origin: "*",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+
 const PORT = 3300;
 
 app.get("/candidatos", async (req, res) => {
