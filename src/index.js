@@ -8,8 +8,6 @@ const app = express();
 // Configuração do CORS com opções específicas
 const corsOptions = {
   origin: "*",
-  methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));
@@ -18,18 +16,28 @@ const PORT = 3300;
 
 app.get("/candidatos", async (req, res) => {
   try {
+    const { estado, municipio, nome } = req.query
+
     const csvUrl =
       "https://raw.githubusercontent.com/augusto-herrmann/eleicoes-2020-planos-de-governo/main/dados/planos-de-governo.csv";
 
     const response = await axios.get(csvUrl);
-
     const json = await csvtojson().fromString(response.data);
 
-    const candidatos = [];
+    let candidatos = json
 
-    json.map((data) => {
-      if (data.sigla_estado == "BA") candidatos.push(data);
-    });
+    if (estado) {
+      candidatos = candidatos.filter((candidato) => candidato.sigla_estado === estado)
+    }
+
+    if (municipio) {
+      candidatos = candidatos.filter((candidato) => candidato.municipio.toLowerCase().includes(municipio.toLowerCase()))
+    }
+
+    if (nome) {
+      candidatos = candidatos.filter((candidato) => candidato.nome_urna.toLowerCase().includes(nome.toLowerCase()))
+    }
+
 
     res.json({ candidatos });
   } catch (error) {
